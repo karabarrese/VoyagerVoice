@@ -23,4 +23,3 @@ def synthesize_text(text="Hello World", output_file="output.mp3"):
     with open(output_file, "wb") as out:
         out.write(response.audio_content)
         print(f"Audio content written to '{output_file}'")
-
