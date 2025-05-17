@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 // import { Image } from 'expo-image';
 import { Button, Text, StyleSheet, View, TouchableOpacity, Platform, Image, ScrollView } from 'react-native';
 import { useFonts, JustAnotherHand_400Regular } from '@expo-google-fonts/just-another-hand';
@@ -20,7 +20,6 @@ export default function PodcastScreen() {
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   // Slider variables
-
   const [isPlaying, setIsPlaying] = useState(false);
 
   const handlePlayPause = () => {
@@ -49,15 +48,41 @@ export default function PodcastScreen() {
     setHighlightedIndex(Math.floor((value / 100) * textArray.length))
   };
 
+  // Update image
+  const [imageUrl, setImageUrl] = useState(null);
+
+  useEffect(() => {
+    fetchImage();
+  }, []);
+
+  const fetchImage = async () => {
+    try {
+      const response = await fetch(
+        'http://172.31.156.103:3000/api/find_search_photo?searchQuery=Golden%20Gate%20Bridge'
+      );
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data)
+        setImageUrl(data); 
+      } else {
+        console.error('Failed to fetch image');
+      }
+    } catch (error) {
+      console.error('Error fetching image:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       {/* <AppleMaps.View style={{ flex: 1 }} /> */}
       <Text style={styles.heading}>Voyager Voice</Text>
       <View style={{ marginTop: 65, height: 100, justifyContent: 'center', alignItems: 'center' }}>
-        <Image
-          style={styles.locationImg}
-          source={require('../../assets/images/defaultLoc.png')}
-        />
+        {imageUrl ? (
+          <Image style={styles.locationImg} source={{ uri: imageUrl }} />
+        ) : (
+          <Text>Loading Image...</Text>
+        )}
+
         <Text style={styles.locationName}>Location Name</Text>
       </View>
 

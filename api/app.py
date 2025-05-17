@@ -120,6 +120,8 @@ def find_search_photo():
         
     return jsonify("")
     #http://localhost:3000/api/find_search_photo?searchQuery=UCLA
+    #http://localhost:3000/api/find_search_photo?searchQuery=Golden%20Gate%20Bridge
+    #http://localhost:3000/api/find_search_photo?searchQuery=Santa%20Clara%20University
 
 if __name__ == "__main__":
     CORS(app)
