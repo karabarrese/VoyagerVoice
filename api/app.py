@@ -39,7 +39,7 @@ def get_location_details():
 @app.route('/api/find_search', methods=['GET'])
 def get_find_search():
     search_query = request.args.get('searchQuery')
-    address = request.args.get('address')
+    # address = request.args.get('address')
     latitude = request.args.get('latitude')
     longitude = request.args.get('longitude')
     # if address and latitude and longitude:
