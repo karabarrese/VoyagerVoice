@@ -20,6 +20,7 @@ export default function LocationScreen() {
 
   const [enteredLocation, onChangeEnteredLocation] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('test');
+  const [selectedLocationIsLatLong, setSelectedLocationIsLatLong] = useState(false);
 
   const getUserLocation = async () => {
     try {
@@ -32,6 +33,7 @@ export default function LocationScreen() {
       const location = await Location.getCurrentPositionAsync({});
       const { latitude, longitude } = location.coords;
       setSelectedLocation(`${latitude}, ${longitude}`);
+      setSelectedLocationIsLatLong(true);
     } catch (error) {
       alert('Failed to get location');
       console.error(error);
@@ -51,7 +53,11 @@ export default function LocationScreen() {
           placeholder="123 Main Street"
           keyboardType="default"
         />
-        <TouchableOpacity style={styles.enterLocationBtn} onPress={() => {if(enteredLocation != ''){setSelectedLocation(enteredLocation)}}}>
+        <TouchableOpacity style={styles.enterLocationBtn} onPress={() => {
+          if(enteredLocation != ''){
+            setSelectedLocation(enteredLocation);
+            setSelectedLocationIsLatLong(false);
+          }}}>
           <Image
             style={styles.arrowImg}
             source={require('../../assets/images/arrow.png')}
@@ -67,7 +73,7 @@ export default function LocationScreen() {
 
       <Text style={styles.selectedLocationText}>Selected Location: {'\n'} {selectedLocation}</Text>
       
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Podcast')}>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Podcast', {selectedLocation:selectedLocation, isLatLong:selectedLocationIsLatLong})}>
         <Text style={styles.buttonText}>Hear Stories</Text>
       </TouchableOpacity>
     </View>

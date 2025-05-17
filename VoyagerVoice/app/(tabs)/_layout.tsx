@@ -10,7 +10,7 @@ const Stack = createNativeStackNavigator();
 export type RootStackParamList = {
   Home: undefined;
   Location: undefined;
-  Podcast: undefined;
+  Podcast: {selectedLocation: string, isLatLong:boolean};
 };
 
 export default function RootLayout() {

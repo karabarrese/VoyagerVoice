@@ -4,8 +4,10 @@ import { Button, Text, StyleSheet, View, TouchableOpacity, Platform, Image, Scro
 import { useFonts, JustAnotherHand_400Regular } from '@expo-google-fonts/just-another-hand';
 import Slider from '@react-native-community/slider';
 import { LinearGradient as ExpoLinearGradient } from "expo-linear-gradient";
-import { useNavigation, NavigationProp} from '@react-navigation/native';
+import { useNavigation, NavigationProp, RouteProp, useRoute} from '@react-navigation/native';
 import { RootStackParamList } from './_layout';
+
+type PodcastRouteProp = RouteProp<RootStackParamList, 'Podcast'>;
 
 export default function PodcastScreen() {
   if (Platform.OS === 'ios') {
@@ -50,16 +52,26 @@ export default function PodcastScreen() {
 
   // Update image
   const [imageUrl, setImageUrl] = useState(null);
+  const route = useRoute<PodcastRouteProp>();
+  const { selectedLocation, isLatLong } = route.params;
 
   useEffect(() => {
     fetchImage();
   }, []);
 
   const fetchImage = async () => {
+    console.log("Selected location");
     try {
-      const response = await fetch(
-        'http://172.31.156.103:3000/api/find_search_photo?searchQuery=Golden%20Gate%20Bridge'
-      );
+      let apiUrl = "";
+      if(isLatLong){
+        const [latitude, longitude] = selectedLocation.split(", ").map(coord => parseFloat(coord));
+        apiUrl = `http://172.31.156.103:3000/api/nearby_search_photo?latitude=${latitude}&longitude=${longitude}`;
+      } else {
+        apiUrl = `http://172.31.156.103:3000/api/find_search_photo?searchQuery=${selectedLocation.replace(/ /g, "%20")}}`
+      }
+      console.log(apiUrl);
+      
+      const response = await fetch(apiUrl);
       if (response.ok) {
         const data = await response.json();
         console.log(data)
