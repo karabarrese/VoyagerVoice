@@ -1,25 +1,25 @@
 import { Image } from 'expo-image';
 import { Button, Text, StyleSheet, View, TouchableOpacity} from 'react-native';
-import { useFonts, JustAnotherHand_400Regular } from '@expo-google-fonts/just-another-hand';
+import { useFonts } from '@expo-google-fonts/just-another-hand';
 import React from 'react';
 import Car from './Animations/car';
 import Landmark from './Animations/landmark';
+import { useNavigation, NavigationProp} from '@react-navigation/native';
+import { RootStackParamList } from './_layout';
 
-
-
-export default function HomeScreen2() {
+export default function HomeScreen() {
   const [fontsLoaded] = useFonts({
-    JustAnotherHand_400Regular,
+    'JustAnotherHand_400Regular': require('../../assets/fonts/JustAnotherHand-Regular.ttf'),
     'JollyLodger': require('../../assets/fonts/JollyLodger-Regular.ttf'),
   });
 
-  
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Voyager Voice</Text>
       <Text style={styles.subheading}>Stories that travel with you</Text>
-      <TouchableOpacity style={styles.button} onPress={() => alert('Button pressed')}>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Location')}>
         <Text style={styles.buttonText}>Get Started</Text>
       </TouchableOpacity>
       <Car />
@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
   },
   heading: {
     textAlign: 'left',
-    marginTop: 20,
+    marginTop: 70,
     marginLeft: 20,
     fontSize: 60,
     color: '#2C7A65',
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
   buttonText: {
     margin: 'auto',
     marginTop: 15,
-    fontSize: 35,
+    fontSize: 34,
     color: '#69868A',
     fontFamily: 'JustAnotherHand_400Regular',
   },
