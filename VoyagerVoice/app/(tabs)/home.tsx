@@ -1,12 +1,9 @@
 import { Image } from 'expo-image';
-import { Button, Text, StyleSheet, View, TouchableOpacity, Platform, TextInput } from 'react-native';
+import { Button, Text, StyleSheet, View, TouchableOpacity} from 'react-native';
 import { useFonts, JustAnotherHand_400Regular } from '@expo-google-fonts/just-another-hand';
-// import { AppleMaps, GoogleMaps } from 'expo-maps';
 
-export default function HomeScreen() {
-  // if (Platform.OS === 'ios') {
-  //   return <AppleMaps.View style={{ flex: 1 }} />;
-  // }
+
+export default function HomeScreen2() {
   const [fontsLoaded] = useFonts({
     JustAnotherHand_400Regular,
     'JollyLodger': require('../../assets/fonts/JollyLodger-Regular.ttf'),
@@ -14,16 +11,8 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      {/* <AppleMaps.View style={{ flex: 1 }}></AppleMaps.View> */}
       <Text style={styles.heading}>Voyager Voice</Text>
-      <Text style={styles.instruction}>Enter a location:</Text>
-      <TextInput
-          style={styles.input}
-          // onChangeText={onChangeNumber}
-          // value={number}
-          placeholder="useless placeholder"
-          keyboardType="numeric"
-        />
+      <Text style={styles.subheading}>Stories that travel with you</Text>
       <TouchableOpacity style={styles.button} onPress={() => alert('Button pressed')}>
         <Text style={styles.buttonText}>Get Started</Text>
       </TouchableOpacity>
@@ -44,19 +33,13 @@ const styles = StyleSheet.create({
     color: '#2C7A65',
     fontFamily: 'JollyLodger',
   },
-  instruction: {
+  subheading: {
     textAlign: 'left',
     marginTop: 20,
     marginLeft: 20,
     fontSize: 53,
-    color: '#2C7A65',
+    color: '#69868A',
     fontFamily: 'JustAnotherHand_400Regular',
-  },
-  input: {
-    height: 40,
-    margin: 12,
-    borderWidth: 1,
-    padding: 10,
   },
   button: {
     backgroundColor: '#F7C4B4',
@@ -75,7 +58,7 @@ const styles = StyleSheet.create({
   buttonText: {
     margin: 'auto',
     marginTop: 15,
-    fontSize: 34,
+    fontSize: 35,
     color: '#69868A',
     fontFamily: 'JustAnotherHand_400Regular',
   },
