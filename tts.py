@@ -5,11 +5,12 @@ import os
 load_dotenv('env.txt')
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"]  = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
 def synthesize_text(text="Hello World", output_file="output.mp3"):
+    
     client = texttospeech.TextToSpeechClient()
     synthesis_input = texttospeech.SynthesisInput(text=text)
     voice = texttospeech.VoiceSelectionParams(
         language_code="en-US",
-        ssml_gender=texttospeech.SsmlVoiceGender.NEUTRAL
+        name="en-US-Chirp3-HD-Achernar"
     )
     audio_config = texttospeech.AudioConfig(
         audio_encoding=texttospeech.AudioEncoding.MP3
@@ -23,4 +24,3 @@ def synthesize_text(text="Hello World", output_file="output.mp3"):
         out.write(response.audio_content)
         print(f"Audio content written to '{output_file}'")
 
-synthesize_text("Hello, welcome to Google Cloud Text-to-Speech!")
