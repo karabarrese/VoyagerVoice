@@ -64,6 +64,63 @@ def get_location_photos():
     return jsonify(response.json()), response.status_code
     #http://localhost:3000/api/location_photos?location_id=80039
 
+@app.route('/api/nearby_search_photo', methods=['GET'])
+def nearby_search_photo():
+    # get location id from lat/long
+    latitude = request.args.get('latitude')
+    longitude = request.args.get('longitude')
+    url = f"https://api.content.tripadvisor.com/api/v1/location/nearby_search?latLong={latitude}%2C%20{longitude}&key={api_key}&language=en"
+    headers = {"accept": "application/json"}
+    response = requests.get(url, headers=headers)
+    # location_id = response.json()["data"][0]["location_id"]
+    data = response.json().get("data", [])
+    location_ids = [item.get("location_id") for item in data if "location_id" in item]
+    # return jsonify(location_ids)
+
+    # get photo from location id
+    locationImage = ""
+    location_id_index = 0
+    while(locationImage == ""):
+        limit = request.args.get('limit', default=1)
+        url = f"https://api.content.tripadvisor.com/api/v1/location/{location_ids[location_id_index]}/photos?key={api_key}&language=en&limit={limit}"
+        headers = {"accept": "application/json"}
+        response = requests.get(url, headers=headers)
+        if(response.json()["data"]):
+            locationImage = response.json()["data"][0]["images"]["medium"]["url"]
+            return jsonify(locationImage)
+        location_id_index+=1
+        
+    return jsonify("")
+    #http://localhost:3000/api/nearby_search_photo?latitude=37.349495730726005&longitude=-121.94103315482995
+
+@app.route('/api/find_search_photo', methods=['GET'])
+def find_search_photo():
+    # get location id from query
+    search_query = request.args.get('searchQuery')
+    url = f"https://api.content.tripadvisor.com/api/v1/location/search?searchQuery={search_query}&key={api_key}&language=en"
+    headers = {"accept": "application/json"}
+    response = requests.get(url, headers=headers)
+    # return jsonify(response.json()), response.status_code
+
+    data = response.json().get("data", [])
+    location_ids = [item.get("location_id") for item in data if "location_id" in item]
+
+    # get photo from location id
+    locationImage = ""
+    location_id_index = 0
+    while(locationImage == ""):
+        limit = request.args.get('limit', default=1)
+        url = f"https://api.content.tripadvisor.com/api/v1/location/{location_ids[location_id_index]}/photos?key={api_key}&language=en&limit={limit}"
+        headers = {"accept": "application/json"}
+        response = requests.get(url, headers=headers)
+        if(response.json()["data"]):
+            locationImage = response.json()["data"][0]["images"]["medium"]["url"]
+            return jsonify(locationImage)
+        location_id_index+=1
+        
+    return jsonify("")
+    #http://localhost:3000/api/find_search_photo?searchQuery=UCLA
+
 if __name__ == "__main__":
     CORS(app)
     app.run(debug=True, host='0.0.0.0', port=3000)
