@@ -2,12 +2,12 @@ import aiohttp
 import asyncio
 import json
 
-#from dotenv import load_dotenv
-#import os
+from dotenv import load_dotenv
+import os
 
-#load_dotenv()
+load_dotenv('env.txt')
 
-#api_token = os.getenv('API_KEY')
+api_token = os.getenv('DEEPSEEK_KEY')
 
 async def chute_stream_and_collect(location, information):
     print(information)
@@ -15,7 +15,7 @@ async def chute_stream_and_collect(location, information):
         {"role":"assistant", "content": f"{information}"},
         {"role":"system", "content": f"You are a friendly podcaster giving a verbal tour of potential sightseeing areas. Summarize your information about {location} into easily digestible content for a user. Do not acknowledge your role as a chatbot. You cannot interact with the user beyond generating content."} 
     ]
-    api_token = "cpk_22cc5191aedb446d950839863c6f32fd.f549c33345105a149309f369d6eb6d12.auuFvHDbQElNyxJe9aW4NbboidG6jaWz"
+    
     headers = {
         "Authorization": f"Bearer {api_token}",
         "Content-Type": "application/json"
