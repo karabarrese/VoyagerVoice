@@ -1,20 +1,38 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Image } from 'expo-image';
 import { Button, Text, StyleSheet, View, TouchableOpacity, Platform, TextInput, Dimensions } from 'react-native';
 import { useFonts, JustAnotherHand_400Regular } from '@expo-google-fonts/just-another-hand';
+import * as Location from 'expo-location';
 // import { AppleMaps, GoogleMaps } from 'expo-maps';
 
 export default function HomeScreen() {
-  if (Platform.OS === 'ios') {
+  // if (Platform.OS === 'ios') {
     // return <AppleMaps.View style={{ flex: 1 }} />;
-  }
   // }
   const [fontsLoaded] = useFonts({
     JustAnotherHand_400Regular,
     'JollyLodger': require('../../assets/fonts/JollyLodger-Regular.ttf'),
   });
 
-  const [enteredLocation, onChangeEnteredLocation] = React.useState('');
+  const [enteredLocation, onChangeEnteredLocation] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState('test');
+
+  const getUserLocation = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        alert('Permission to access location was denied');
+        return;
+      }
+
+      const location = await Location.getCurrentPositionAsync({});
+      const { latitude, longitude } = location.coords;
+      setSelectedLocation(`${latitude}, ${longitude}`);
+    } catch (error) {
+      alert('Failed to get location');
+      console.error(error);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -29,7 +47,7 @@ export default function HomeScreen() {
           placeholder="123 Main Street"
           keyboardType="default"
         />
-        <TouchableOpacity style={styles.enterLocationBtn} onPress={() => alert('Button pressed')}>
+        <TouchableOpacity style={styles.enterLocationBtn} onPress={() => {if(enteredLocation != ''){setSelectedLocation(enteredLocation)}}}>
           <Image
             style={styles.arrowImg}
             source={require('../../assets/images/arrow.png')}
@@ -37,11 +55,13 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.instruction}>or</Text>
+      <Text style={styles.instruction2}>or</Text>
 
-      <TouchableOpacity style={styles.curLocationBtn} onPress={() => alert('Button pressed')}>
+      <TouchableOpacity style={styles.curLocationBtn} onPress={() => getUserLocation()}>
         <Text style={styles.buttonText}>Get your current location</Text>
       </TouchableOpacity>
+
+      <Text style={styles.selectedLocationText}>Selected Location: {'\n'} {selectedLocation}</Text>
       
       <TouchableOpacity style={styles.button} onPress={() => alert('Button pressed')}>
         <Text style={styles.buttonText}>Hear Stories</Text>
@@ -72,11 +92,23 @@ const styles = StyleSheet.create({
     fontFamily: 'JustAnotherHand_400Regular',
   },
   instruction2: {
-    marginTop: 20,
+    marginVertical: 10,
     textAlign: 'center',
     fontSize: 53,
     color: '#2C7A65',
     fontFamily: 'JustAnotherHand_400Regular',
+    alignSelf: 'center',
+    width: '100%',
+  },
+  selectedLocationText:{
+    marginTop: 40,
+    textAlign: 'center',
+    paddingTop: 30,
+    paddingBottom: 20,
+    fontSize: 30,
+    color: 'white',
+    fontFamily: 'JustAnotherHand_400Regular',
+    backgroundColor: '#2C7A65',
   },
   locationInputContainer:{
     flexDirection: "row", 
@@ -97,6 +129,7 @@ const styles = StyleSheet.create({
     fontFamily: 'JustAnotherHand_400Regular',
     fontSize: 35,
     width: Dimensions.get("window").width - 115,
+    borderRadius: 10,
     // marginRight: 75,
   },
   enterLocationBtn: {
@@ -113,10 +146,10 @@ const styles = StyleSheet.create({
   },
   curLocationBtn: {
     backgroundColor: '#FFDDD3',
-    padding: 10,
+    padding: 0,
     marginLeft: 20,
     marginRight: 20,
-    height: 75,
+    height: 65,
     borderRadius: 15,
   },
 
@@ -137,8 +170,8 @@ const styles = StyleSheet.create({
   buttonText: {
     margin: 'auto',
     marginTop: 15,
-    fontSize: 36,
+    fontSize: 37,
     color: '#69868A',
     fontFamily: 'JustAnotherHand_400Regular',
-  },
+  }
 });
