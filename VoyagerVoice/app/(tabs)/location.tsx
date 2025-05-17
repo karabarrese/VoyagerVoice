@@ -3,16 +3,20 @@ import { Image } from 'expo-image';
 import { Button, Text, StyleSheet, View, TouchableOpacity, Platform, TextInput, Dimensions } from 'react-native';
 import { useFonts, JustAnotherHand_400Regular } from '@expo-google-fonts/just-another-hand';
 import * as Location from 'expo-location';
+import { useNavigation, NavigationProp} from '@react-navigation/native';
+import { RootStackParamList } from './_layout';
 // import { AppleMaps, GoogleMaps } from 'expo-maps';
 
-export default function HomeScreen() {
+export default function LocationScreen() {
   // if (Platform.OS === 'ios') {
     // return <AppleMaps.View style={{ flex: 1 }} />;
   // }
   const [fontsLoaded] = useFonts({
-    JustAnotherHand_400Regular,
+    'JustAnotherHand_400Regular': require('../../assets/fonts/JustAnotherHand-Regular.ttf'),
     'JollyLodger': require('../../assets/fonts/JollyLodger-Regular.ttf'),
   });
+
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const [enteredLocation, onChangeEnteredLocation] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('test');
@@ -63,7 +67,7 @@ export default function HomeScreen() {
 
       <Text style={styles.selectedLocationText}>Selected Location: {'\n'} {selectedLocation}</Text>
       
-      <TouchableOpacity style={styles.button} onPress={() => alert('Button pressed')}>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Podcast')}>
         <Text style={styles.buttonText}>Hear Stories</Text>
       </TouchableOpacity>
     </View>
@@ -77,7 +81,7 @@ const styles = StyleSheet.create({
   },
   heading: {
     textAlign: 'left',
-    marginTop: 20,
+    marginTop: 70,
     marginLeft: 20,
     fontSize: 60,
     color: '#2C7A65',

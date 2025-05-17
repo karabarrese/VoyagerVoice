@@ -4,18 +4,20 @@ import { Button, Text, StyleSheet, View, TouchableOpacity, Platform, Image, Scro
 import { useFonts, JustAnotherHand_400Regular } from '@expo-google-fonts/just-another-hand';
 import Slider from '@react-native-community/slider';
 import { LinearGradient as ExpoLinearGradient } from "expo-linear-gradient";
+import { useNavigation, NavigationProp} from '@react-navigation/native';
+import { RootStackParamList } from './_layout';
 
-// import { AppleMaps, GoogleMaps } from 'expo-maps';
-
-export default function HomeScreen() {
+export default function PodcastScreen() {
   if (Platform.OS === 'ios') {
     // return <AppleMaps.View style={{ flex: 1 }} />;
   }
   // }
   const [fontsLoaded] = useFonts({
-    JustAnotherHand_400Regular,
-    'JollyLodger': require('../../assets/fonts/JollyLodger-Regular.ttf'),
-  });
+      'JustAnotherHand_400Regular': require('../../assets/fonts/JustAnotherHand-Regular.ttf'),
+      'JollyLodger': require('../../assets/fonts/JollyLodger-Regular.ttf'),
+    });
+  
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   // Slider variables
 
@@ -51,7 +53,7 @@ export default function HomeScreen() {
     <View style={styles.container}>
       {/* <AppleMaps.View style={{ flex: 1 }} /> */}
       <Text style={styles.heading}>Voyager Voice</Text>
-      <View style={{ marginTop: 60, height: 100, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{ marginTop: 65, height: 100, justifyContent: 'center', alignItems: 'center' }}>
         <Image
           style={styles.locationImg}
           source={require('../../assets/images/defaultLoc.png')}
@@ -100,7 +102,7 @@ export default function HomeScreen() {
       />
     </View>
       
-      <TouchableOpacity style={styles.button} onPress={() => alert('Button pressed')}>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Location')}>
         <Text style={styles.buttonText}>Select New Location</Text>
       </TouchableOpacity>
     </View>
@@ -114,7 +116,7 @@ const styles = StyleSheet.create({
   },
   heading: {
     textAlign: 'left',
-    marginTop: 20,
+    marginTop: 70,
     marginLeft: 20,
     fontSize: 60,
     color: '#2C7A65',
@@ -147,7 +149,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center', 
     justifyContent: 'center',
-    marginTop: 40,
+    marginTop: 50,
     paddingHorizontal: 20,
   },
   slider: {
@@ -188,7 +190,7 @@ const styles = StyleSheet.create({
   },
   scriptContainer: {
     marginTop: 20,
-    height: 250, 
+    height: 275, 
     position: "relative",
     overflow: "hidden"
   },
