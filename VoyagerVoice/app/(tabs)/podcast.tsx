@@ -23,23 +23,36 @@ export default function PodcastScreen() {
   
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();  
 
-  // Audio info:
-  // try {
-  //   const audio = new Audio(require('../../assets/output.mp3'));
-  //   audio.play();
-  // } catch (e) {
-  //   console.error('Cannot play the sound file:', e);
-  // }
-
+  // AUDIO
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [sliderValue, setSliderValue] = useState(0);
 
-  // Initialize audio only once
+  // Initialize audio 
   if (!audioRef.current) {
-    // Use require or import depending on your setup
     audioRef.current = new Audio(require('../../assets/output.mp3'));
   }
+  
+   // Update slider as audio plays
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
 
+    const updateSlider = () => {
+      if (audio.duration > 0) {
+        const currentPercent = (audio.currentTime / audio.duration) * 100;
+        setSliderValue(currentPercent);
+      }
+    };
+
+    audio.addEventListener('timeupdate', updateSlider);
+
+    return () => {
+      audio.removeEventListener('timeupdate', updateSlider);
+    };
+  }, []);
+
+  // pause play functionality
   const togglePlayPause = () => {
     if (!audioRef.current) return;
 
@@ -55,15 +68,19 @@ export default function PodcastScreen() {
     }
   };
 
-  // Script variables - TODO: get from model
-  const transcript = "Welcome to today’s sightseeing spotlight, where we’re diving into one of Washington, D.C.’s most iconic landmarks: the Washington Monument. This towering obelisk stands proudly on the National Mall, a tribute to George Washington—America’s first president and Revolutionary War hero. At over 554 feet tall, it’s not just the world’s tallest stone obelisk but also a marvel of engineering and perseverance. Fun fact: if you look closely, you’ll notice a subtle color shift in the marble about a third of the way up. That’s because construction hit a snag in the 1850s due to funding issues and the Civil War, leaving the monument half-finished for over 20 years. When work resumed, builders used marble from a different quarry, creating that distinctive “ring” in the stone. The monument’s design is elegantly simple—a hollow Egyptian-style obelisk with a pyramid-shaped top. Inside, an elevator whisks visitors up to observation windows for breathtaking views of the city. And here’s a quirky detail: the very tip of the monument is capped with a tiny aluminum pyramid, a rare metal at the time that symbolized modernity. Over the years, the monument has weathered earthquakes, temporary closures, and even a post-9/11 security upgrade. But today, it’s standing strong, surrounded by 50 flags representing every U.S. state. Whether you’re gazing up at its gleaming marble facade or taking in the view from the top, the Washington Monument is a must-see symbol of American history and ingenuity.  Thanks for tuning in—and if you’re planning a visit, don’t forget to snap a photo with this legendary landmark reflecting in the nearby pool!"
-
-  // const [highlightedIndex, setHighlightedIndex] = useState(0);
+  // user changing slider value
   const changeSliderValue = (value: number) => {
-    // setHighlightedIndex(Math.floor((value / 100) * textArray.length))
+    setSliderValue(value);
+
+    if (audioRef.current && audioRef.current.duration) {
+      audioRef.current.currentTime = (value / 100) * audioRef.current.duration;
+    }
   };
 
-  // Update image
+  // SCRIPT variables - TODO: get from model
+  const transcript = "Welcome to today’s sightseeing spotlight, where we’re diving into one of Washington, D.C.’s most iconic landmarks: the Washington Monument. This towering obelisk stands proudly on the National Mall, a tribute to George Washington—America’s first president and Revolutionary War hero. At over 554 feet tall, it’s not just the world’s tallest stone obelisk but also a marvel of engineering and perseverance. Fun fact: if you look closely, you’ll notice a subtle color shift in the marble about a third of the way up. That’s because construction hit a snag in the 1850s due to funding issues and the Civil War, leaving the monument half-finished for over 20 years. When work resumed, builders used marble from a different quarry, creating that distinctive “ring” in the stone. The monument’s design is elegantly simple—a hollow Egyptian-style obelisk with a pyramid-shaped top. Inside, an elevator whisks visitors up to observation windows for breathtaking views of the city. And here’s a quirky detail: the very tip of the monument is capped with a tiny aluminum pyramid, a rare metal at the time that symbolized modernity. Over the years, the monument has weathered earthquakes, temporary closures, and even a post-9/11 security upgrade. But today, it’s standing strong, surrounded by 50 flags representing every U.S. state. Whether you’re gazing up at its gleaming marble facade or taking in the view from the top, the Washington Monument is a must-see symbol of American history and ingenuity.  Thanks for tuning in—and if you’re planning a visit, don’t forget to snap a photo with this legendary landmark reflecting in the nearby pool!"
+
+  // UPDATE IMAGE
   const [imageUrl, setImageUrl] = useState(null);
   const route = useRoute<PodcastRouteProp>();
   const { selectedLocation, isLatLong } = route.params;
@@ -116,6 +133,7 @@ export default function PodcastScreen() {
           style={styles.slider}
           minimumValue={0}
           maximumValue={100}
+          value={sliderValue}
           onValueChange={(value) => changeSliderValue(value)}
           minimumTrackTintColor="#2C7A65"
           maximumTrackTintColor="#ddd"
