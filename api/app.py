@@ -123,6 +123,21 @@ def find_search_photo():
     #http://localhost:3000/api/find_search_photo?searchQuery=Golden%20Gate%20Bridge
     #http://localhost:3000/api/find_search_photo?searchQuery=Santa%20Clara%20University
 
+@app.route('/api/nearby_search_name', methods=['GET'])
+def nearby_search_name():
+    # get location id from query
+    latitude = request.args.get('latitude')
+    longitude = request.args.get('longitude')
+
+    url = f"https://api.content.tripadvisor.com/api/v1/location/nearby_search?latLong={latitude}%2C%20{longitude}&key={api_key}&language=en"
+    headers = {"accept": "application/json"}
+    response = requests.get(url, headers=headers)
+
+    # return jsonify(response.json()), response.status_code
+
+    data = response.json()["data"][1]["name"]
+    return jsonify(data)
+
 if __name__ == "__main__":
     CORS(app)
     app.run(debug=True, host='0.0.0.0', port=3000)
