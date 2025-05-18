@@ -10,10 +10,11 @@ load_dotenv('env.txt')
 api_token = os.getenv('DEEPSEEK_KEY')
 
 async def chute_stream_and_collect(location, information):
-    print(information)
+    #print(information)
     holder=[
         {"role":"assistant", "content": f"{information}"},
-        {"role":"system", "content": f"You are a friendly podcaster giving a verbal tour of potential sightseeing areas. Summarize your information about {location} into easily digestible content for a user. Do not acknowledge your role as a chatbot. You cannot interact with the user beyond generating content."} 
+        {"role":"system", "content": f"You are a friendly podcaster giving a verbal tour of potential sightseeing areas. Summarize your information about {location} into easily digestible content for a user. Do not use bullet points. Everything you say will be read out loud, so it needs to sound like a podcaster is saying it. Do not acknowledge your role as a chatbot. You cannot interact with the user beyond generating content."},
+        {"role":"user", "content": f"You are a friendly podcaster giving a verbal tour of potential sightseeing areas. Summarize your information about {location} into easily digestible content for a user. Do not use bullet points. Everything you say will be read out loud, so it needs to sound like a podcaster is saying it. Do not acknowledge your role as a chatbot. You cannot interact with the user beyond generating content."} 
     ]
     
     headers = {
@@ -28,8 +29,8 @@ async def chute_stream_and_collect(location, information):
         "temperature": 0.7
     }
 
-    full_text = ""  # Single string buffer
-
+    full_text = ""
+    start_collecting = False
     async with aiohttp.ClientSession() as session:
         async with session.post(
             "https://llm.chutes.ai/v1/chat/completions",
@@ -46,6 +47,14 @@ async def chute_stream_and_collect(location, information):
                         chunk = json.loads(data)
                         delta = chunk['choices'][0]['delta']
                         content = delta.get('content') or ''
+                        if not start_collecting:
+                            if '</think>' in content:
+                                start_collecting = True
+                                content = content.split('</think>', 1)[1].lstrip()
+                            else:
+                                continue  # skip this chunk entirely
+
+                        # Only yield and append once collecting has started
                         full_text += content
                         yield content
                     except Exception as e:
