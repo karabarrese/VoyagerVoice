@@ -7,14 +7,16 @@ import { LinearGradient as ExpoLinearGradient } from "expo-linear-gradient";
 import { useNavigation, NavigationProp, RouteProp, useRoute} from '@react-navigation/native';
 import { RootStackParamList } from './_layout';
 import SoundPlayer from 'react-native-sound-player';
-
+const fs = require('fs');
+import os from "os";
+import path from "path";
 
 type PodcastRouteProp = RouteProp<RootStackParamList, 'Podcast'>;
-
+ 
 export default function PodcastScreen() {
   if (Platform.OS === 'ios') {
     // return <AppleMaps.View style={{ flex: 1 }} />;
-  }
+  }  
   // }
   const [fontsLoaded] = useFonts({
       'JustAnotherHand_400Regular': require('../../assets/fonts/JustAnotherHand-Regular.ttf'),
@@ -38,14 +40,18 @@ export default function PodcastScreen() {
   const [loadingLocation, setLoadingLocation] = useState(false);
   const [loadingPodcast, setLoadingPodcast] = useState(false);
 
-  useEffect(() => {
-    if (audioSrc && audioRef.current) {
-      audioRef.current.src = audioSrc;
-    }
-  }, [audioSrc]);
+  if (!audioRef.current) {
+    audioRef.current = new Audio(require('../../assets/output.mp3'));
+  }
+
+  // useEffect(() => {
+  //   if (audioSrc && audioRef.current) {
+  //     audioRef.current.src = audioSrc;
+  //   }
+  // }, [audioSrc]);
 
   // Fetch the location name first
-  const fetchLocationName = async () => {
+  const fetchLocationName = async () => { 
     console.log("Getting location name");
     setLoadingLocation(true);
     try {
@@ -99,15 +105,47 @@ export default function PodcastScreen() {
         const { error } = await res.json();
         throw new Error(error || res.statusText);
       }
+
       console.log("waiting res.json");
+
       const { text, audio_base64 } = await res.json();
-      console.log(res.json())
+      console.log(audio_base64);
       setResponseText(text);
-      setAudioSrc(`data:audio/mp3;base64,${audio_base64}`);
+      // setAudioSrc(`data:audio/mp3;base64,${audio_base64}`);
+
+      // try {
+      //   const audioBuffer = Buffer.from(audio_base64, 'base64');
+      //   fs.writeFileSync('./new_output.mp3', audioBuffer);
+      //   console.log("Audio saved hopefully");
+      // } catch (err) {
+      //   console.log("Error decoding audio");
+      // }
+
+      const binaryString = atob(audio_base64); 
+      const len = binaryString.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      // adjust MIME type if your TTS is mp3
+      const blob = new Blob([bytes], { type: 'audio/mp3' });
+
+      // 4. Trigger download
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = `tts-output.mp3`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      URL.revokeObjectURL(url);
+
+      // audioRef.current = new Audio(require('../../../../../tiffanynguyen/Downloads/tts-output.mp3'));
+
     } catch (err) {
       console.error('Error fetching podcast:', err);
     } finally {
-      setLoadingPodcast(false);
+      setLoadingPodcast(false); 
     }
   };
 
@@ -143,6 +181,11 @@ export default function PodcastScreen() {
 
   // pause play functionality
   const togglePlayPause = () => {
+    console.log(audioRef.current);
+    // if(!audioRef.current){
+    //   const downloadDir = path.join(path.join(os.homedir(), "Downloads"), "tts-output.mp3");
+    //   audioRef.current = new Audio(require(downloadDir));
+    // }
     if (!audioRef.current) return;
 
     if (isPlaying) {
@@ -243,7 +286,7 @@ export default function PodcastScreen() {
         {loadingLocation && <ActivityIndicator size="large" color="#0000ff" />}
         {!loadingLocation && !loadingPodcast && (
           <>
-            <Text style={styles.text}>{responseText || "Loading Transcript"}</Text>
+            <Text style={styles.text}>{responseText || "Loading Transcript..."}</Text>
           </>
         )}
         {loadingPodcast && <ActivityIndicator size="large" color="#0000ff" />}
