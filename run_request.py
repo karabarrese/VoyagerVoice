@@ -14,7 +14,7 @@ def main():
     )
     parser.add_argument(
         "-u", "--url",
-        default="http://localhost:5000/api/process",
+        default="http://localhost:5001/api/process",
         help="The full URL of the Flask endpoint"
     )
     parser.add_argument(

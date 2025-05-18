@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 // import { Image } from 'expo-image';
-import { Button, Text, StyleSheet, View, TouchableOpacity, Platform, Image, ScrollView } from 'react-native';
+import { Button, Text, StyleSheet, View, TouchableOpacity, Platform, Image, ScrollView, ActivityIndicator } from 'react-native';
 import { useFonts, JustAnotherHand_400Regular } from '@expo-google-fonts/just-another-hand';
 import Slider from '@react-native-community/slider';
 import { LinearGradient as ExpoLinearGradient } from "expo-linear-gradient";
@@ -28,10 +28,99 @@ export default function PodcastScreen() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
 
-  // Initialize audio 
-  if (!audioRef.current) {
-    audioRef.current = new Audio(require('../../assets/output.mp3'));
-  }
+  // Read audio
+  const route = useRoute<PodcastRouteProp>();
+  const { selectedLocation, isLatLong } = route.params;
+
+  const [query, setQuery] = useState("");
+  const [responseText, setResponseText] = useState("");
+  const [audioSrc, setAudioSrc] = useState("");
+  const [loadingLocation, setLoadingLocation] = useState(false);
+  const [loadingPodcast, setLoadingPodcast] = useState(false);
+
+  useEffect(() => {
+    if (audioSrc && audioRef.current) {
+      audioRef.current.src = audioSrc;
+    }
+  }, [audioSrc]);
+
+  // Fetch the location name first
+  const fetchLocationName = async () => {
+    console.log("Getting location name");
+    setLoadingLocation(true);
+    try {
+      if (isLatLong) {
+        const [latitude, longitude] = selectedLocation.split(", ").map(coord => parseFloat(coord));
+        let apiUrl = `http://172.31.156.103:3000/api/nearby_search_name?latitude=37.34989405149171&longitude=-121.94068139315706`;
+
+        const response = await fetch(apiUrl);
+        if (response.ok) {
+          const data = await response.json();
+          console.log("Location name fetched:", data);
+          setQuery(data); 
+          console.log(query);
+        } else {
+          console.error('Failed to fetch location name');
+        }
+      } else {
+        setQuery(selectedLocation);
+        console.log(query);
+      }
+    } catch (error) {
+      console.error('Error fetching location name:', error);
+    } finally {
+      setLoadingLocation(false);
+    }
+  };
+
+  // Fetch the podcast based on the query
+  const fetchPodcast = async () => {
+    if (query == "") {
+      console.error("No query available");
+      return;
+    }
+
+    setLoadingPodcast(true);
+    setResponseText("");
+    setAudioSrc("");
+
+    console.log("in fetch podcast");
+
+    try {
+      const res = await fetch("http://172.31.156.103:5001/api/process", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query }),
+      });
+
+      if (!res.ok) {
+        const { error } = await res.json();
+        throw new Error(error || res.statusText);
+      }
+      console.log("waiting res.json");
+      const { text, audio_base64 } = await res.json();
+      console.log(res.json())
+      setResponseText(text);
+      setAudioSrc(`data:audio/mp3;base64,${audio_base64}`);
+    } catch (err) {
+      console.error('Error fetching podcast:', err);
+    } finally {
+      setLoadingPodcast(false);
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await fetchLocationName();
+      console.log("query");
+      console.log(query);
+      await fetchPodcast();
+    };
+
+    fetchData();
+  }, []);
   
    // Update slider as audio plays
   useEffect(() => {
@@ -82,8 +171,6 @@ export default function PodcastScreen() {
 
   // UPDATE IMAGE
   const [imageUrl, setImageUrl] = useState(null);
-  const route = useRoute<PodcastRouteProp>();
-  const { selectedLocation, isLatLong } = route.params;
 
   useEffect(() => {
     fetchImage();
@@ -96,6 +183,7 @@ export default function PodcastScreen() {
       if(isLatLong){
         const [latitude, longitude] = selectedLocation.split(", ").map(coord => parseFloat(coord));
         apiUrl = `http://172.31.156.103:3000/api/nearby_search_photo?latitude=${latitude}&longitude=${longitude}`;
+        // apiUrl = `http://172.31.156.103:3000/api/nearby_search_photo?latitude=${37.34989405149171}&longitude=${-121.94068139315706}`;
       } else {
         apiUrl = `http://172.31.156.103:3000/api/find_search_photo?searchQuery=${selectedLocation.replace(/ /g, "%20")}}`
       }
@@ -151,18 +239,14 @@ export default function PodcastScreen() {
 
       <View style={styles.scriptContainer}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <Text style={styles.text}>{transcript}</Text>
-        {/* TODO: break text into array by time to bold current text
-         <Text style={styles.text}>
-          {textArray.map((text, index) => (
-            <Text
-              key={index}
-              style={index === highlightedIndex ? styles.highlightedText : styles.text}
-            >
-              {text}
-            </Text>
-          ))}
-        </Text> */}
+        {/* Loading indicators */}
+        {loadingLocation && <ActivityIndicator size="large" color="#0000ff" />}
+        {!loadingLocation && !loadingPodcast && (
+          <>
+            <Text style={styles.text}>{responseText || "Loading Transcript"}</Text>
+          </>
+        )}
+        {loadingPodcast && <ActivityIndicator size="large" color="#0000ff" />}
       </ScrollView>
 
       <ExpoLinearGradient
