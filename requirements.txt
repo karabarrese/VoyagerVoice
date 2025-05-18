@@ -1,0 +1,8 @@
+aiohttp
+asyncio
+wikipedia
+wikipedia-api
+google-cloud-texttospeech
+dotenv
+flask
+flask_cors
