@@ -1,4 +1,4 @@
-# VoyagerVoice
+# Voyager Voice
 
 ## Inspiration
 Our inspiration stemmed from the idea of road trips. Often, when traveling to unfamiliar places with limited information, we thought it would be helpful to have an app that could provide engaging, educational content about the surrounding area. Imagine learning about a place through a podcast while you're exploring it—that’s what led us to create Voyager Voice. It’s an app that generates location-based audio podcasts, offering historical and contextual insights about nearby landmarks.
