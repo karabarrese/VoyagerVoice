@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 // import { Image } from 'expo-image';
 import { Button, Text, StyleSheet, View, TouchableOpacity, Platform, Image, ScrollView } from 'react-native';
 import { useFonts, JustAnotherHand_400Regular } from '@expo-google-fonts/just-another-hand';
@@ -6,6 +6,8 @@ import Slider from '@react-native-community/slider';
 import { LinearGradient as ExpoLinearGradient } from "expo-linear-gradient";
 import { useNavigation, NavigationProp, RouteProp, useRoute} from '@react-navigation/native';
 import { RootStackParamList } from './_layout';
+import SoundPlayer from 'react-native-sound-player';
+
 
 type PodcastRouteProp = RouteProp<RootStackParamList, 'Podcast'>;
 
@@ -19,19 +21,44 @@ export default function PodcastScreen() {
       'JollyLodger': require('../../assets/fonts/JollyLodger-Regular.ttf'),
     });
   
-    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>();  
 
-  // Slider variables
+  // Audio info:
+  // try {
+  //   const audio = new Audio(require('../../assets/output.mp3'));
+  //   audio.play();
+  // } catch (e) {
+  //   console.error('Cannot play the sound file:', e);
+  // }
+
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  const handlePlayPause = () => {
-    setIsPlaying(!isPlaying);
+  // Initialize audio only once
+  if (!audioRef.current) {
+    // Use require or import depending on your setup
+    audioRef.current = new Audio(require('../../assets/output.mp3'));
+  }
+
+  const togglePlayPause = () => {
+    if (!audioRef.current) return;
+
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      audioRef.current.play().then(() => {
+        setIsPlaying(true);
+      }).catch(e => {
+        console.error('Cannot play the sound file:', e);
+      });
+    }
   };
 
   // Script variables - TODO: get from model
   const transcript = "Welcome to today’s sightseeing spotlight, where we’re diving into one of Washington, D.C.’s most iconic landmarks: the Washington Monument. This towering obelisk stands proudly on the National Mall, a tribute to George Washington—America’s first president and Revolutionary War hero. At over 554 feet tall, it’s not just the world’s tallest stone obelisk but also a marvel of engineering and perseverance. Fun fact: if you look closely, you’ll notice a subtle color shift in the marble about a third of the way up. That’s because construction hit a snag in the 1850s due to funding issues and the Civil War, leaving the monument half-finished for over 20 years. When work resumed, builders used marble from a different quarry, creating that distinctive “ring” in the stone. The monument’s design is elegantly simple—a hollow Egyptian-style obelisk with a pyramid-shaped top. Inside, an elevator whisks visitors up to observation windows for breathtaking views of the city. And here’s a quirky detail: the very tip of the monument is capped with a tiny aluminum pyramid, a rare metal at the time that symbolized modernity. Over the years, the monument has weathered earthquakes, temporary closures, and even a post-9/11 security upgrade. But today, it’s standing strong, surrounded by 50 flags representing every U.S. state. Whether you’re gazing up at its gleaming marble facade or taking in the view from the top, the Washington Monument is a must-see symbol of American history and ingenuity.  Thanks for tuning in—and if you’re planning a visit, don’t forget to snap a photo with this legendary landmark reflecting in the nearby pool!"
 
-  const [highlightedIndex, setHighlightedIndex] = useState(0);
+  // const [highlightedIndex, setHighlightedIndex] = useState(0);
   const changeSliderValue = (value: number) => {
     // setHighlightedIndex(Math.floor((value / 100) * textArray.length))
   };
@@ -95,7 +122,7 @@ export default function PodcastScreen() {
           thumbTintColor="#2C7A65"
         />
         <View style={styles.buttonContainer}>
-          <TouchableOpacity onPress={handlePlayPause}>  
+          <TouchableOpacity onPress={togglePlayPause}>  
             <Image 
             source={isPlaying ? require('../../assets/images/Pause.png') : require('../../assets/images/Play.png')} 
             style={styles.icon} 

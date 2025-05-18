@@ -45,7 +45,7 @@ export default function Landmark() {
   
 const styles = StyleSheet.create({
     container: {
-      marginTop: -500,
+      marginTop: -350,
       alignItems: 'center',
     },
     image: {

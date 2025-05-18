@@ -1,3 +1,12 @@
+// console.error = ((originalError: typeof console.error) => {
+//   return (...args: any[]) => {
+//     if (typeof args[0] === "string" && args[0].includes("findDOMNode is deprecated")) {
+//       return;
+//     }
+//     originalError(...args);
+//   };
+// })(console.error);
+
 import { Image } from 'expo-image';
 import { Button, Text, StyleSheet, View, TouchableOpacity} from 'react-native';
 import { useFonts } from '@expo-google-fonts/just-another-hand';
